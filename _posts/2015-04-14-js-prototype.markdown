@@ -17,7 +17,7 @@ tags:
 1. [问题起源](#问题起源)
 2. [可以接受的解释](#可以接受的解释)
 3. [发散](#发散)
----
+
 
 # 问题起源
 
@@ -103,7 +103,7 @@ Object.__proto__.__proto__===Object.prototype  // true
 
 说得很绕，但意思你们懂得！所以答案是:<strong>先有原型，再有对象！</strong>
 
-#发散
+# 发散
 
 这个问题就好像是问先有dna还是先有生命？个人感觉，Object.prototype就像是最初的dna一样，dna是蛋白质，它从无到有，偶然具有了可以产生蛋白质的机制，就想第一步由Object.prototype派生出Function.prototype一样。有了这个机制，后来竟然可以复制自己了（Object.__proto__），再后来，这些细胞和细胞内的dna不断演化，才派生出了各种对象。
 
