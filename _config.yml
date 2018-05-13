@@ -1,0 +1,109 @@
+# Site settings
+title: Shany's space
+SEOTitle: Shany's space
+header-img: img/home-bg.jpg
+email: andyyshan@qq.com
+description: ""
+keyword: ""
+url: "https://yangdm2015.github.io/blog/"            # your host, for absolute URL
+baseurl: "/blog"         # for example, '/blog' if your blog hosted on 'host/blog'
+
+
+
+# SNS settings
+RSS: false
+# weibo_username:     huxpro
+# zhihu_username:     huxpro
+github_username:    yangdm2015
+#twitter_username:  huxpro
+# facebook_username:  huxpro
+
+
+
+# Build settings
+# from 2016, 'pygments' is unsupported on GitHub Pages. Use 'rouge' for highlighting instead.
+highlighter: rouge
+permalink: pretty
+paginate: 10
+exclude: ["less","node_modules","Gruntfile.js","package.json","README.md"]
+anchorjs: true                          # if you want to customize anchor. check out line:181 of `post.html`
+
+
+
+# Gems
+# from PR#40, to support local preview for Jekyll 3.0
+plugins: [jekyll-paginate]
+
+
+
+# Markdown settings
+# replace redcarpet to kramdown,
+# although redcarpet can auto highlight code, the lack of header-id make the catalog impossible, so I switch to kramdown
+# document: http://jekyllrb.com/docs/configuration/#kramdown
+markdown: kramdown
+kramdown:
+  input: GFM                            # use Github Flavored Markdown !important
+
+
+
+# Disqus settings
+disqus_username: disqus_ORNvDRCM3w
+
+# # Duoshuo settings
+# duoshuo_username: huxblog
+# # Share component is depend on Comment so we can NOT use share only.
+# duoshuo_share: true                     # set to false if you want to use Comment without Sharing
+
+
+
+
+# Analytics settings
+# Baidu Analytics
+ba_track_id: 0f5ace2c3936f71eac65f8c07e20c301
+# Google Analytics
+ga_track_id: 'UA-49627206-1'            # Format: UA-xxxxxx-xx
+ga_domain: huangxuan.me
+
+
+
+# Sidebar settings
+sidebar: true                           # whether or not using Sidebar.
+sidebar-about-description: "coding 旅行 生活 感悟。"
+sidebar-avatar: /blog/img/sky-tower.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
+
+
+
+# # Featured Tags
+featured-tags: true                     # whether or not using Feature-Tags
+featured-condition-size: 1              # A tag will be featured if the size of it is more than this condition value
+
+
+# Gitalk
+gitalk:
+  enable: true    #是否开启Gitalk评论
+  clientID: fe19d831b83a3c301319                            #生成的clientID
+  clientSecret: 534a09a698cb7734ddcd206d8c9fc2ab5999b5e4    #生成的clientSecret
+  repo: yangdm2015.github.io    #仓库名称
+  owner: yangdm2015    #github用户名
+  admin: yangdm2015
+  distractionFreeMode: true #是否启用类似FB的阴影遮罩
+
+# # Friends
+# friends: [
+#     {
+#         title: "Hux Blog",
+#         href: "http://huangxuan.me"
+#     },{
+#         title: "Foo",
+#         href: "#"
+#     },{
+#         title: "Bar",
+#         href: "#"
+#     },{
+#         title: "Example Friends",
+#         href: "#"
+#     },{
+#         title: "It helps SEO",
+#         href: "#"
+#     }
+# ]
