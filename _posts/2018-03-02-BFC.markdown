@@ -1,0 +1,38 @@
+---
+layout:     post
+title:      "BFC是什么"
+subtitle:   "BFC概念及应用"
+date:       2018-03-02
+author:     "Shany"
+header-img: "img/post-bg-unix-linux.jpg"
+tags:
+    - HTML
+    - CSS 
+---
+
+> This document is not completed and will be updated anytime.
+
+
+# 目录
+
+1. [什么是BFC](#什么是BFC)
+2. [BFC有什么用](#BFC有什么用)
+3. [如何触发BFC](#如何触发BFC)
+
+
+# 什么是BFC
+
+BFC 是 Block Formatting context的缩写，即格式化上下文。它是一个html元素在满足某种条件后，该元素内部的元素可以表现出一种特殊的效果。如果一个元素符合了成为BFC的条件，该元素内部元素的布局和定位就和外部元素互不影响(除非内部的盒子建立了新的 BFC)，是一个隔离了的独立容器。
+
+# BFC有什么用
+1. 防止外边距重合
+当父元素没有上外边距，而第一个子元素有上外边距时，子元素的上外边距会变成父元素的外边距。这就是外边距重合。而当父元素触发BFC后，这个现象就没有，常见的可设置父元素overflow:hidden
+2. 去除浮动导致的高度塌陷
+通常父元素会被子元素撑开，而如果子元素都是浮动时，父元素又没有设置高度，则它的高度会变为0。如果想让父元素仍然被撑开，可以设置其触发BFC。
+
+#如何触发BFC
+即触发父元素的BFC
+1. 浮动元素，float 除 none 以外的值； 
+2. 绝对定位元素，position（absolute，fixed）； 
+3. display 为以下其中之一的值 inline-blocks，table-cells，table-captions； 
+4. overflow 除了 visible 以外的值（hidden，auto，scroll）

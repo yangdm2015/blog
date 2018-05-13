@@ -1,0 +1,106 @@
+---
+layout:     post
+title:      "移动端适配屏幕布局"
+subtitle:   "rem布局实战"
+date:       2018-02-25
+author:     "Shany"
+header-img: "img/post-bg-unix-linux.jpg"
+tags:
+    - HTML
+    - CSS 
+    - JavaScript
+---
+
+> This document is not completed and will be updated anytime.
+
+
+# 目录
+
+1. [为什么要做移动端屏幕适配](#为什么要做移动端屏幕适配)
+2. [实践rem布局](#实践rem布局)
+3. [参考资料](#如何触发BFC)
+
+
+# 为什么要做移动端屏幕适配
+
+移动端屏幕大小不一，比如iphone5和iphone6，以及iphone6 Plus 如果用同一套css，则肯定不匹配。
+但又不到使用媒体查询来分段匹配的程度，一般需要自适应屏幕的宽度，动态调整相应间距。
+自从有了flex布局，似乎手机端的自适应适配就迎刃而解了，居中分布只要这样写
+```css
+.wrap{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.item{
+ flex:1 0 100px;
+}
+```
+这样写有几个问题
+1. 无法应对精细化布局，比如要求子元素对两边的间距不变，而中间的间距随屏幕宽度变化而变化这样的情况
+2. 高度无法根据屏幕宽度而变大。比如当有两行图标时，设计要求当屏幕变大时，两行之间的间距也变大，这样flex布局就不行了。
+
+
+# 实践rem布局
+
+为了应对以上情况，rem布局应运而生。
+## rem是什么
+rem像px一样，是一种单位，1rem代表着html标签中定义的font-size的大小。默认是16px;
+我们可以在js中很方便地修改html的font-size属性，这样rem就有了作为一般单位的可能。
+
+## 与设计图结合实践
+一般设计人员的设计图按照iphone6 的尺寸设计2倍分辨率的效果图，iphone6的尺寸是375 * 667，iphone6的dpr是2，所以两倍的尺寸是 750 * 1334。假设一个元素在750*1334的设计图上的标注margin-left为40px,则可知它在iphone6上应是20个物理像素。如果要求它在iphon6Plus的屏幕上左边距等比扩大，那么由iphon6Plus 的屏幕尺寸是 414 * 736 ，我们希望它占有 20 * 414 / 375 = 22.08 个逻辑像素。
+我们已iphone6的2x设计图为标准，设计图上100px为1rem，则应该这么写css:
+```css
+.selector{
+  margin-left:0.4rem;
+}
+```
+同时在首页插入这样一段js：
+```js
+    let dw = document.documentElement.clientWidth;
+    let fontSize = dw / 7.5;
+    document.documentElement.style.fontSize = fontSize + 'px';
+```
+这样就可以保证这个左边距无论在什么dpr下，都会按照屏幕宽度/iphone6屏幕宽度的比例进行缩放，保持一致性。
+
+## 如何做到1px物理像素的边框？
+
+随便贴一段在iphone6  (dpr2)的情况下的1物理像素的边框的css:
+```css
+
+    .vux-cell-bd {
+      margin-left: 0.15rem;
+      &:after {
+        content: '';
+        position: absolute;
+        left: 0.49rem;
+        top: 0.49rem;
+        right: 0;
+        border-bottom: 1px solid #e8e8e8;
+        transform: scaleY(0.5);
+        z-index: 50;
+      }
+    }
+```
+这里使用了scaleY(0.5)来应对dpr2的情况，如果要适配dpr3的iphone6Plus，则需要用到媒体查询
+```css
+@media (-webkit-min-device-pixel-ratio:2),(min-device-pixel-ratio:2){
+    .vux-cell-bd{
+        &::after{
+           transform: scaleY(0.5);
+        }
+    }
+}
+@media (-webkit-min-device-pixel-ratio:3),(min-device-pixel-ratio:3){
+    .vux-cell-bd{
+        &::after{
+           transform: scaleY(0.333334);
+        }
+    }
+}
+```
+# 参考资料
+即触发父元素的BFC
+1. [手机端rem布局详解](http://www.cnblogs.com/well-nice/p/5509589.html) 
+
