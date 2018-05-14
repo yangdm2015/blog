@@ -46,8 +46,8 @@ kramdown:
 
 
 
-# Disqus settings
-disqus_username: disqus_ORNvDRCM3w
+# # Disqus settings
+# disqus_username: disqus_ORNvDRCM3w
 
 # # Duoshuo settings
 # duoshuo_username: huxblog
