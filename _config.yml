@@ -83,7 +83,7 @@ gitalk:
   enable: true    #是否开启Gitalk评论
   clientID: fe19d831b83a3c301319                            #生成的clientID
   clientSecret: 534a09a698cb7734ddcd206d8c9fc2ab5999b5e4    #生成的clientSecret
-  repo: yangdm2015.github.io    #仓库名称
+  repo: comments    #仓库名称
   owner: yangdm2015    #github用户名
   admin: yangdm2015
   distractionFreeMode: true #是否启用类似FB的阴影遮罩
