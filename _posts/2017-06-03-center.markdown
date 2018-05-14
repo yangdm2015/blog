@@ -1,0 +1,14 @@
+---
+layout:     post
+title:      "不定宽高元素居中"
+subtitle:   "常见问题"
+date:       2017-06-23
+author:     "Shany"
+header-img: "img/post-bg-unix-linux.jpg"
+tags:
+    - HTML5
+    - Css3
+---
+
+> This document is not completed and will be updated anytime.
+

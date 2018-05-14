@@ -1,0 +1,15 @@
+---
+layout:     post
+title:      "vue中的render函数详解及应用[1]"
+subtitle:   "配置式表单编程"
+date:       2017-10-21
+author:     "Shany"
+header-img: "img/post-bg-unix-linux.jpg"
+tags:
+    - JavaScript
+    - Vue
+    - Render
+---
+
+> This document is not completed and will be updated anytime.
+

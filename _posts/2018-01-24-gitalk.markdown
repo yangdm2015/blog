@@ -1,0 +1,13 @@
+---
+layout:     post
+title:      "给gitpage加上评论系统"
+subtitle:   "手把手教你玩转gitalk"
+date:       2018-01-24
+author:     "Shany"
+header-img: "img/post-bg-unix-linux.jpg"
+tags:
+    - github
+---
+
+> This document is not completed and will be updated anytime.
+

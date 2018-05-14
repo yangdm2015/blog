@@ -1,0 +1,14 @@
+---
+layout:     post
+title:      "promise问题集锦"
+subtitle:   "常见问题"
+date:       2017-04-16
+author:     "Shany"
+header-img: "img/post-bg-unix-linux.jpg"
+tags:
+    - JavaScrit
+    - Promise
+---
+
+> This document is not completed and will be updated anytime.
+
