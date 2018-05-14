@@ -1,0 +1,243 @@
+---
+layout:     post
+title:      "vue-router源码研读"
+subtitle:   "弄清vue-router监听url原理"
+date:       2018-02-11
+author:     "Shany"
+header-img: "img/post-bg-unix-linux.jpg"
+tags:
+    - HTML5
+    - Vue 
+    - JavaScript
+---
+
+> This document is not completed and will be updated anytime.
+
+
+# 目录
+
+
+1. [v-router介绍](#vue-router介绍)
+2. [源码解读](#源码解读)
+	1. [$router对象的加载](#第一个问题，$router对象的加载)
+	2. [跳转与响应后退事件](#第二个问题，如何跳转与响应后退事件)
+3. [参考资料](#参考资料)
+
+
+
+# v-router介绍
+
+v-router是vue的路由插件，有两种运行模式，history与hash。从表面上看，这是分别以不带#和带#号的url为分别。实际上是有不同的实现方式。
+那么vue-touter的实现机制是怎样的，它是怎么调用配置在路由中的vue组件的呢？本篇文章以v-router3.0.1版本源码为例，分解v-router实现原理。
+
+# 源码解读
+
+ajax代替直接网页提交的方式刷新页面的方式兴起以来，虽然可以做到不刷新而更新页面，但一直有个问题，就是用户点击浏览器的后退按钮时，页面由于是ajax方式更新的，此时不能恢复到之前的状态。那vue-router就解决了这个问题，它会在用户点击后退时，重新加载相应的组件，这样组件的一个生命周期走完，自然就能恢复状态了。
+看源码，打开node_modules的vue-router/dist/vue-router.esm.js文件。
+
+## 第一个问题，$router对象的加载
+
+520行定义了一个install方法
+```js
+function install (Vue) {
+  if (install.installed && _Vue === Vue) { return }
+  install.installed = true;
+
+  _Vue = Vue;
+
+  var isDef = function (v) { return v !== undefined; };
+
+  var registerInstance = function (vm, callVal) {
+    var i = vm.$options._parentVnode;
+    if (isDef(i) && isDef(i = i.data) && isDef(i = i.registerRouteInstance)) {
+      i(vm, callVal);
+    }
+  };
+
+  Vue.mixin({
+    beforeCreate: function beforeCreate () {
+      if (isDef(this.$options.router)) {
+        this._routerRoot = this;
+        this._router = this.$options.router;
+        this._router.init(this);
+        Vue.util.defineReactive(this, '_route', this._router.history.current);
+      } else {
+        this._routerRoot = (this.$parent && this.$parent._routerRoot) || this;
+      }
+      registerInstance(this, this);
+    },
+    destroyed: function destroyed () {
+      registerInstance(this);
+    }
+  });
+
+  Object.defineProperty(Vue.prototype, '$router', {
+    get: function get () { return this._routerRoot._router }
+  });
+
+  Object.defineProperty(Vue.prototype, '$route', {
+    get: function get () { return this._routerRoot._route }
+  });
+
+  Vue.component('router-view', View);
+  Vue.component('router-link', Link);
+
+  var strats = Vue.config.optionMergeStrategies;
+  // use the same hook merging strategy for route hooks
+  strats.beforeRouteEnter = strats.beforeRouteLeave = strats.beforeRouteUpdate = strats.created;
+}
+```
+
+以上代码可以看出，Vue在每个实例的beforeCreate钩子中混入了_router属性的初始化代码，_router先是指向了初始化时的router配置项，再调用了init方法，再被Vue.util.defineReactive定义成响应式的，最后，再把实例上的$router属性交给 _router属性劫持。
+根据vue的文档,vue插件需要定义一个install方法供vue调用，这样，引入vue-router后，每个实例都会有一个响应式的$router属性了。再看init函数中做了什么，在2473行。
+
+```js
+VueRouter.prototype.init = function init (app /* Vue component instance */) {
+    var this$1 = this;
+
+  "development" !== 'production' && assert(
+    install.installed,
+    "not installed. Make sure to call `Vue.use(VueRouter)` " +
+    "before creating root instance."
+  );
+
+  this.apps.push(app);
+
+  // main app already initialized.
+  if (this.app) {
+    return
+  }
+
+  this.app = app;
+
+  var history = this.history;
+
+  if (history instanceof HTML5History) {
+    history.transitionTo(history.getCurrentLocation());
+  } else if (history instanceof HashHistory) {
+    var setupHashListener = function () {
+      history.setupListeners();
+    };
+    history.transitionTo(
+      history.getCurrentLocation(),
+      setupHashListener,
+      setupHashListener
+    );
+  }
+
+  history.listen(function (route) {
+    this$1.apps.forEach(function (app) {
+      app._route = route;
+    });
+  });
+};
+```
+在init中，判断this.history是不是一个HTML5History对象，然后调用history对象的transitionTo方法，传入不同的参数。
+
+## 第二个问题，如何跳转与响应后退事件
+那么HTML5History 是什么？
+在2143行有HTML5History的定义，我们先看this.history是怎么初始化的。我们知道最终的输出对象是VueRouter，创建router实例时，也是new的VueRouter对象。VueRouter的构造函数在2421行定义
+
+```js
+var VueRouter = function VueRouter (options) {
+  if ( options === void 0 ) options = {};
+
+  this.app = null;
+  this.apps = [];
+  this.options = options;
+  this.beforeHooks = [];
+  this.resolveHooks = [];
+  this.afterHooks = [];
+  this.matcher = createMatcher(options.routes || [], this);
+
+  var mode = options.mode || 'hash';
+  this.fallback = mode === 'history' && !supportsPushState && options.fallback !== false;
+  if (this.fallback) {
+    mode = 'hash';
+  }
+  if (!inBrowser) {
+    mode = 'abstract';
+  }
+  this.mode = mode;
+
+  switch (mode) {
+    case 'history':
+      this.history = new HTML5History(this, options.base);
+      break
+    case 'hash':
+      this.history = new HashHistory(this, options.base, this.fallback);
+      break
+    case 'abstract':
+      this.history = new AbstractHistory(this, options.base);
+      break
+    default:
+      if (process.env.NODE_ENV !== 'production') {
+        assert(false, ("invalid mode: " + mode));
+      }
+  }
+};
+```
+可见，this.history是根据传入的参数来初始化为不同的对象实例，默认是HashHistory实例，history模式下是HTML5History实例，若是在非浏览器环境下，则是AbstractHistory实例。
+先看HTML5History 代码有点长，就不全贴了，只看两个地方，第一个地方，如何响应后退按钮的
+2138行
+
+```js
+ function HTML5History (router, base) {
+    var this$1 = this;
+
+    History$$1.call(this, router, base);
+
+    var expectScroll = router.options.scrollBehavior;
+
+    if (expectScroll) {
+      setupScroll();
+    }
+
+    var initLocation = getLocation(this.base);
+    window.addEventListener('popstate', function (e) {
+      var current = this$1.current;
+
+      // Avoiding first `popstate` event dispatched in some browsers but first
+      // history route not updated since async guard at the same time.
+      var location = getLocation(this$1.base);
+      if (this$1.current === START && location === initLocation) {
+        return
+      }
+
+      this$1.transitionTo(location, function (route) {
+        if (expectScroll) {
+          handleScroll(router, route, current, true);
+        }
+      });
+    });
+  }
+```
+这里响应了window对象的popstate事件，这是html5的特有事件，要和pushState一起使用。所以知道这个对象为什么叫HTML5History了吧，这里仍然是调用了transitionTo方法。
+再看我们在实例中最常用的push方法，2176行
+```js
+HTML5History.prototype.push = function push (location, onComplete, onAbort) {
+    var this$1 = this;
+
+    var ref = this;
+    var fromRoute = ref.current;
+    this.transitionTo(location, function (route) {
+      pushState(cleanPath(this$1.base + route.fullPath));
+      handleScroll(this$1.router, route, fromRoute, false);
+      onComplete && onComplete(route);
+    }, onAbort);
+  };
+```
+仍然是调用了transitionTo 方法，在它的回调中，调用了pushState方法，这是一个原生方法，为的就是在历史记录中留下一笔，同时传递一些参数，以备免得像纯ajax式地不留痕迹地更新页面。
+
+
+再来看多次出场的transitionTo方法，这个函数就是解析router的状态，然后加载相应的组件了。
+由以上分析可知，在mode = history模式下，vue-router是怎么监听路由变化，并在后退事件发生时，做出响应的.HashHistor对象相似，只不过监听的是hashchange事件，push函数中，用window.location.hash属性添加了历史记录。
+
+# 参考资料
+
+1. [vue-router 实现分析](https://cnodejs.org/topic/58d680c903d476b42d34c72b) 
+2. [【源码拾遗】从vue-router看前端路由的两种实现](https://zhuanlan.zhihu.com/p/27588422) 
+3. [开发插件](https://cn.vuejs.org/v2/guide/plugins.html) 
+4. [ajax与HTML5 history pushState/replaceState实例](http://www.zhangxinxu.com/wordpress/2013/06/html5-history-api-pushstate-replacestate-ajax/) 
+
+
