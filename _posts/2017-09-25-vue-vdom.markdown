@@ -1,0 +1,97 @@
+---
+layout:     post
+title:      "vue虚拟dom初探"
+subtitle:   "从属性一个诡异的vue现象说虚拟dom"
+date:       2017-09-25
+author:     "Shany"
+header-img: "img/post-bg-unix-linux.jpg"
+tags:
+    - JavaScript
+    - Vue
+---
+
+> This document is not completed and will be updated anytime.
+
+二话不说上一个我观察到的现象的最简实现，如下所示，如果点击 **‘触发d1的更新’** 按钮，预期会打印什么呢？
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>vdom-index</title>
+    <script src="./vue.js"></script>
+</head>
+
+<body>
+    <script>
+      function getSonName(){
+        console.log(`触发SonName的更新`)
+        return 'sonName'
+      }
+      let son = Vue.component('son', {
+            props: ['name'],
+            template: '<div>{{name}}</div>',
+        })
+        var app = new Vue({
+            el: '#app',
+            render(h){
+              let self = this
+              return h('div',[
+                h('son',{
+                  props:{
+                    name:getSonName()
+                  }
+                }),
+                h('div',{
+                  domProps:{
+                    innerHTML:`d1= ${this.getD1Value()}`
+                  }
+                }),
+                h('div',{
+                  domProps:{
+                    innerHTML:`d2= ${this.getD2Value()}`
+                  }
+                }),
+                h('div',{
+                  on:{
+                    click(){
+                      self.upd1()
+                    }
+                  },
+                  domProps:{
+                    innerHTML:'触发d1的更新'
+                  }
+                }),
+              ])
+            },
+            components:{son},
+            methods: {
+                getD1Value(){
+                    console.log(`触发d1的更新`)
+                  return this.d1
+                },
+                getD2Value(){
+                    console.log(`触发d2的更新`)
+                  return this.d2
+                },
+                
+                upd1() {
+                    this.d1 = 'new d1'
+                }
+            },
+            data: {
+                d1: 'd1',
+                d2: 'd2'
+            },
+        })
+    </script>
+</body>
+
+</html>
+```
+
+答案、分析以及源码解析未完待续
