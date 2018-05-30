@@ -1,0 +1,92 @@
+---
+layout:     post
+title:      "vue事件机制初探"
+subtitle:   "vue 源码研读"
+date:       2018-05-31
+author:     "Shany"
+header-img: "img/post-bg-unix-linux.jpg"
+tags:
+    - Vue
+    - Javascript 
+---
+
+> This document is not completed and will be updated anytime.
+
+
+# 目录
+
+1. [说明](#说明)
+2. [示例代码](#示例代码)
+3. [Vue的编译过程](#Vue的编译过程)
+
+
+# 说明
+本文是研读[vue源码解析－事件机制](https://segmentfault.com/a/1190000009750348)之后，自己动手查看代码，并梳理逻辑后整理的笔记。vue源码参考的2.5.16版本
+
+# 示例代码
+
+```html
+<div id="app">
+  <div id="test1" @click="click1">click1</div>
+  <div id="test2" @click.stop="click2">click2</div>
+  <my-component v-on:click.native="nativeclick" v-on:componenton="parentOn">
+  </my-component>
+</div>
+</body>
+<script src="vue.js"></script>
+<script type="text/javascript">
+var Child = {
+  template: '<div>A custom component!</div>'
+} 
+Vue.component('my-component', {
+  name: 'my-component',
+  template: '<div>A custom component!<div @click.stop="toParent">test click</div></div>',
+  components: {
+    Child:Child
+  },
+  created(){
+    console.log(this);
+  },
+  methods: {
+    toParent(){
+      this.$emit('componenton','toParent')
+    }
+  },
+  mounted(){
+    console.log(this);
+  }
+})
+  new Vue({
+  el: '#app',
+  data: function () {
+    return {
+      heihei:{name:3333},
+      a:1
+    }
+  },
+  components: {
+    Child:Child
+  },
+  methods: {
+    click1(){
+      alert('click1')
+    },
+    click2(){
+      alert('click2')
+    },
+    nativeclick(){
+      alert('nativeclick')
+    },
+    parentOn(value){
+      alert(value)
+    }
+  }
+})
+</script>
+```
+
+# Vue的编译过程
+众所周知，vue会在mount钩子中编译templete
+
+在源码的10861行定义了$mount 函数
+
