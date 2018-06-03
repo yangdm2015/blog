@@ -17,7 +17,11 @@ tags:
 
 1. [说明](#说明)
 2. [示例代码](#示例代码)
-3. [Vue的编译过程](#Vue的编译过程)
+3. [Vue的渲染过程](#Vue的渲染过程)
+4. [Vue对挂载事件代码的编译过程](#Vue对挂载事件代码的编译过程)
+  1. [Vue对挂载到原生dom的事件代码的编译过程](#Vue对挂载事件代码的编译过程)
+  2. [Vue对挂载到组件的事件代码的编译过程](#Vue对挂载事件代码的编译过程)
+
 
 
 # 说明
@@ -84,8 +88,19 @@ Vue.component('my-component', {
 })
 </script>
 ```
+# Vue的渲染过程 
 
-# Vue的编译过程
+这篇文章总结得很好 [vue源码分析：渲染篇](https://blog.csdn.net/generon/article/details/72482844) 
+Vue渲染过程的核心步骤是
+1. new Vue，执行初始化
+2. 挂载$mount方法，通过自定义Render方法、template、el等生成Render函数
+3. 通过Watcher监听数据的变化
+4. 当数据发生变化时，Render函数执行生成VNode对象
+5. 通过patch方法，对比新旧VNode对象，通过DOM Diff算法，添加、修改、删除真正的DOM元素
+可以看到事件的渲染分两部分，一个是在mount方法里生成render，第二个是在数据变化时，在update里更新绑定事件
+
+
+# Vue对挂载事件代码的编译过程
 
 [vue源码解析－事件机制](https://segmentfault.com/a/1190000009750348) 中谈到普通html元素上的事件，那么对于定义在vue实例上的方法，是怎么处理的呢？引文中解析了genHandler 函数，那么看看genHandler 函数是怎么被调用的，也许能更好的理解该函数的写法
 
