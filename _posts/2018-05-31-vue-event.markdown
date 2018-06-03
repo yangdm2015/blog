@@ -117,7 +117,7 @@ function generate (
 ```
 最终在createCompiler函数中，返回的render长这样：
 ```js
-`
+
 _c('div', {
     attrs: {
         "id": "app"
@@ -149,7 +149,7 @@ _c('div', {
         }
     }
 })], 1)
-`
+
 ```
 上面的代码，熟悉render函数的朋友一看就应该明白了。
 
@@ -157,14 +157,16 @@ _c('div', {
 
 读到‘compile完后自然就render’撸不动了，只好查资料看看compile和render是怎么串起来的。大概意思是这里都生成render函数的执行字符串了，到时候放到环境里一执行就可以了。
 
-继续往下看，‘最后在虚拟dom－》真实dom的时候。会调用核心函数：’这里又撸不动了，这里后面分析的是 <b>add$1<\b>函数，这个又是怎么跟前面讲的串起来的呢？  参考 [Vue源码后记-其余内置指令（3）](http://www.cnblogs.com/QH-Jimmy/p/7374683.html)，再在源码的updateDOMListeners函数中大断点，通过chrome的调用栈窗口观察到以下
+继续往下看，‘最后在虚拟dom－》真实dom的时候。会调用核心函数：’这里又撸不动了，这里后面分析的是 <b>add$1 </b> 函数，这个又是怎么跟前面讲的串起来的呢？  参考 [Vue源码后记-其余内置指令（3）](http://www.cnblogs.com/QH-Jimmy/p/7374683.html)，再在源码的updateDOMListeners函数中大断点，通过chrome的调用栈窗口观察到以下
 <img src='img/call-stack.png'>
 
+依照上图显示的调用站，先追踪到 patch函数，这个函数是vDom更新时的核心函数，它是在6066行返回的。在其内部，6117行，调用了createElm函数，该函数在5523行定义；
+通过createChildren-》createElm-》invokeCreateHooks-》updateDOMListeners-》add$1 也就是在初始化/更新dom时，会把前面生成的函数给绑定到dom上
 
 
-发现一个读vue源码的系列文章，不错 
-
-看到[大白话Vue源码系列(04)：生成render函数](https://www.cnblogs.com/iovec/archive/2017/12/25/vue_04.html)
 
 
+有空可以读一下的文章 
+[Vue2源码分析-逻辑梳理](https://www.cnblogs.com/aaronjs/p/7274965.html)
+[大白话Vue源码系列(04)：生成render函数](https://www.cnblogs.com/iovec/archive/2017/12/25/vue_04.html)
 
