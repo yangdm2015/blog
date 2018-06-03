@@ -86,7 +86,85 @@ Vue.component('my-component', {
 ```
 
 # Vue的编译过程
+
+[vue源码解析－事件机制](https://segmentfault.com/a/1190000009750348) 中谈到普通html元素上的事件，那么对于定义在vue实例上的方法，是怎么处理的呢？引文中解析了genHandler 函数，那么看看genHandler 函数是怎么被调用的，也许能更好的理解该函数的写法
+
 众所周知，vue会在mount钩子中编译templete
 
-在源码的10861行定义了$mount 函数
+在源码的10861行重新定义了$mount 函数
+在$mount函数中，用于编译的是compileToFunctions函数。在10835行，可以看到该函数是createCompiler函数的返回，而createCompiler又是createCompilerCreator函数的返回，createCompilerCreator定义在10762行，可以看到最终传给compileToFunctions的引用是   createCompileToFunctionFn函数，它在10647行定义。在这个函数中，还是调用的createCompilerCreator函数中定义的compile函数，而compile函数主要调用baseCompile，也就是一个传入的回调，这个回调是在10817行定义的baseCompile函数，该函数中，生成ast后，调用generate方法。该方法在10127行的定义，该方法主要调用了genElement方法，而genElement中调用了genData$2来生成data,在genData$2中，对事件的处理是9992行的genHandlers，该函数中又调用了genHandler
+
+从上面代码的引用分析可知，到genHandler函数中时，已经有了ast，所以单步调试到该函数中，可以看到events中可以得到events的name 'click'和相应的handler 的name 'click1'
+
+genHandler中处理事件函数，如果有修饰符，就添加修饰符对应的函数语句，比如click2对应的返回语句是
+```js
+on:{"click":function($event){$event.stopPropagation();return click2($event)}}
+```
+
+经过以上处理，返回到generate方法，它返回的render方法就是把上面这段语句绑定this，然后执行：看10134行
+```js
+function generate (
+  ast,
+  options
+) {
+  var state = new CodegenState(options);
+  var code = ast ? genElement(ast, state) : '_c("div")';
+  return {
+    render: ("with(this){return " + code + "}"),
+    staticRenderFns: state.staticRenderFns
+  }
+}
+```
+最终在createCompiler函数中，返回的render长这样：
+```js
+`
+_c('div', {
+    attrs: {
+        "id": "app"
+    }
+}, [_c('div', {
+    attrs: {
+        "id": "test1"
+    },
+    on: {
+        "click": click1
+    }
+}, [_v("click1")]), _v(" "), _c('div', {
+    attrs: {
+        "id": "test2"
+    },
+    on: {
+        "click": function($event) {
+            $event.stopPropagation();
+            return click2($event)
+        }
+    }
+}, [_v("click2")]), _v(" "), _c('my-component', {
+    on: {
+        "componenton": parentOn
+    },
+    nativeOn: {
+        "click": function($event) {
+            return nativeclick($event)
+        }
+    }
+})], 1)
+`
+```
+上面的代码，熟悉render函数的朋友一看就应该明白了。
+
+经过以上处理，返回到10861行定义的$mount函数，该函数的结尾调用了之前暂存的Vue.prototype.$mount方法，该方法定义在8522行，它里面调用了mountComponent方法
+
+读到‘compile完后自然就render’撸不动了，只好查资料看看compile和render是怎么串起来的。大概意思是这里都生成render函数的执行字符串了，到时候放到环境里一执行就可以了。
+
+继续往下看，‘最后在虚拟dom－》真实dom的时候。会调用核心函数：’这里又撸不动了，这里后面分析的是 <b>add$1<\b>函数，这个又是怎么跟前面讲的串起来的呢？  参考 [Vue源码后记-其余内置指令（3）](http://www.cnblogs.com/QH-Jimmy/p/7374683.html)，再在源码的updateDOMListeners函数中大断点，通过chrome的调用栈窗口观察到以下
+<img src='img/call-stack.png'>
+
+
+
+发现一个读vue源码的系列文章，不错 
+
+看到[大白话Vue源码系列(04)：生成render函数](https://www.cnblogs.com/iovec/archive/2017/12/25/vue_04.html)
+
+
 
