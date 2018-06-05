@@ -177,7 +177,7 @@ _c('div', {
 
 依照上图显示的调用站，先追踪到 patch函数，这个函数是vDom更新时的核心函数，它是在6066行返回的。在其内部，6117行，调用了createElm函数，该函数在5523行定义；
 通过createChildren-》createElm-》invokeCreateHooks-》updateDOMListeners-》add$1 也就是在初始化/更新dom时，会把前面生成的函数给绑定到dom上 
-test
+
 
 
 
