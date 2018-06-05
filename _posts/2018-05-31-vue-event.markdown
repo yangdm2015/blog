@@ -176,12 +176,12 @@ _c('div', {
 <img src='img/call-stack.png'>
 
 依照上图显示的调用站，先追踪到 patch函数，这个函数是vDom更新时的核心函数，它是在6066行返回的。在其内部，6117行，调用了createElm函数，该函数在5523行定义；
-通过createChildren-》createElm-》invokeCreateHooks-》updateDOMListeners-》add$1 也就是在初始化/更新dom时，会把前面生成的函数给绑定到dom上
+通过createChildren-》createElm-》invokeCreateHooks-》updateDOMListeners-》add$1 也就是在初始化/更新dom时，会把前面生成的函数给绑定到dom上 
+test
 
 
 
-
-有空可以读一下的文章 
+有空可以读一下的文章
 [Vue2源码分析-逻辑梳理](https://www.cnblogs.com/aaronjs/p/7274965.html)
 [大白话Vue源码系列(04)：生成render函数](https://www.cnblogs.com/iovec/archive/2017/12/25/vue_04.html)
 
